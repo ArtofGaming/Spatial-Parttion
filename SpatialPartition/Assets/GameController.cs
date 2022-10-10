@@ -29,10 +29,12 @@ namespace SpatialPartitionPattern
         int cellSize = 10;
 
         //Number of soldiers on each team
-        int numberOfSoldiers = 100;
+        int numberOfSoldiers = 1000;
 
         //The Spatial Partition grid
         GridMaker grid;
+
+        bool spatialPartition = false;
 
 
         void Start()
@@ -91,22 +93,38 @@ namespace SpatialPartitionPattern
             //For each friendly, find the closest enemy and change its color and chase it
             for (int i = 0; i < friendlySoldiers.Count; i++)
             {
-                //Soldier closestEnemy = FindClosestEnemySlow(friendlySoldiers[i]);
-
-                //The fast version with spatial partition
-                Soldier closestEnemy = grid.FindClosestEnemy(friendlySoldiers[i]);
-
-                //If we found an enemy
-                if (closestEnemy != null)
+                if (spatialPartition)
                 {
-                    //Change material
-                    closestEnemy.soldierMeshRenderer.material = closestEnemyMaterial;
+                    //The fast version with spatial partition
+                    Soldier closestEnemy = grid.FindClosestEnemy(friendlySoldiers[i]);
+                    //If we found an enemy
+                    if (closestEnemy != null)
+                    {
+                        //Change material
+                        closestEnemy.soldierMeshRenderer.material = closestEnemyMaterial;
 
-                    closestEnemies.Add(closestEnemy);
+                        closestEnemies.Add(closestEnemy);
 
-                    //Move the friendly in the direction of the enemy
-                    friendlySoldiers[i].Move(closestEnemy);
+                        //Move the friendly in the direction of the enemy
+                        friendlySoldiers[i].Move(closestEnemy);
+                    }
                 }
+                else
+                {
+                    Soldier closestEnemy = FindClosestEnemySlow(friendlySoldiers[i]);
+                    //If we found an enemy
+                    if (closestEnemy != null)
+                    {
+                        //Change material
+                        closestEnemy.soldierMeshRenderer.material = closestEnemyMaterial;
+
+                        closestEnemies.Add(closestEnemy);
+
+                        //Move the friendly in the direction of the enemy
+                        friendlySoldiers[i].Move(closestEnemy);
+                    }
+                }
+
             }
         }
 
@@ -134,6 +152,11 @@ namespace SpatialPartitionPattern
             }
 
             return closestEnemy;
+        }
+
+        public void Toggle()
+        {
+            spatialPartition = !spatialPartition;
         }
     }
 }
